@@ -1,0 +1,8 @@
+{
+  "extends": ["tsconfig/native","expo/tsconfig.base"],
+  "exclude": ["node_modules"],
+  "include": ["index.js", "App.js", "app", "test", "*.js", "babel.config.js"],
+  "compilerOptions": {
+    "baseUrl": "./"
+  }
+}
