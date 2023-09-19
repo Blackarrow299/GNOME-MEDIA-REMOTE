@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { colors, typography } from "app/theme"
 import TextTicker from "react-native-text-ticker"
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons"
-import { AllPropsInType, AllPropsOutType } from "server/src/mpris/Player"
+import { AllPropsInType, AllPropsOutType } from "../../../bridge/src/mpris/Player"
 import MediaSlider from "app/components/MediaSlider"
 import MediaVolume from "app/components/MediaVolume"
 

@@ -3,7 +3,7 @@ import { Slider } from "@miblanchard/react-native-slider"
 import { colors } from "app/theme"
 import { useState } from "react"
 import { StyleSheet, View, ViewProps } from "react-native"
-import { AllPropsInType, AllPropsOutType } from "server/src/mpris/Player"
+import { AllPropsInType, AllPropsOutType } from "../../../bridge/src/mpris/Player"
 
 interface Props extends ViewProps {
     media: Partial<AllPropsOutType>

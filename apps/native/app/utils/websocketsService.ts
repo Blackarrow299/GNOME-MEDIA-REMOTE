@@ -1,4 +1,4 @@
-import { createWsEvent, isValidEventData } from "server/src/util/ws"
+import { createWsEvent, isValidEventData } from "../../../bridge/src/util/ws"
 
 type WsAction = {
   open: (ws: WebSocket, ev: Event) => void

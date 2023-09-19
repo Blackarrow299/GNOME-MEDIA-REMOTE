@@ -1,0 +1,40 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "prettier --config .prettierrc 'src/**/*.ts' --write",
+    "lint": "eslint src --fix --ext .js,.ts .",
+    "dev": "ts-node ./src/server.ts",
+    "build": "tsc --build"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint-config-custom": "*",
+    "tsconfig": "*",
+    "@types/node": "^20.5.0",
+    "pkg": "^5.8.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.6",
+    "eslint": "^8.47.0"
+  },
+  "dependencies": {
+    "@types/ws": "^8.5.5",
+    "dbus-next": "^0.10.2",
+    "dgram": "^1.0.1",
+    "ws": "^8.13.0"
+  },
+  "bin": {
+    "your-cli-name": "dist/server.js"
+  },
+  "pkg": {
+    "assets": "cert/**/*",
+    "targets": [
+      "node14-linux-x64"
+    ],
+    "outputPath": "bin"
+  }
+}

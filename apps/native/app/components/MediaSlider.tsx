@@ -2,7 +2,7 @@ import { Slider } from "@miblanchard/react-native-slider"
 import { colors } from "app/theme"
 import { useEffect, useRef, useState } from "react"
 import { StyleSheet, Text, View } from "react-native"
-import { AllPropsOutType } from "server/src/mpris/Player"
+import { AllPropsOutType } from "../../../bridge/src/mpris/Player"
 import ws from "app/utils/websocketsService"
 
 interface Props {
