@@ -30,8 +30,6 @@ const PlayerScreen = () => {
     return () => ws.removeAllListeners()
   }, [])
 
-
-
   function updateMediaProp<T extends keyof AllPropsInType>(fieldName: T, value: AllPropsInType[T]) {
     if (media.CanControl) {
       ws.emit("updateMedia", { [fieldName]: value })
