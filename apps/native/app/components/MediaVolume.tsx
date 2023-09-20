@@ -16,12 +16,12 @@ const MediaVolume = ({ media, updateMediaProp, ...props }: Props) => {
     const [isOpen, setIsOpen] = useState(false)
 
     useEffect(() => {
-        const myEvent = events.on("screenClick", () => {
+        const screenClickEvent = events.on("screenClick", () => {
             setIsOpen(false)
         })
 
         return () => {
-            events.removeEventListner(myEvent)
+            events.removeEventListner(screenClickEvent)
         }
     }, [])
 

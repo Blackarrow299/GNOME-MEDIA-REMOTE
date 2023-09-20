@@ -26,9 +26,11 @@ const MediaSlider = ({ position, length, media }: Props) => {
     const [value, setValue] = useState(position || 0)
 
     useEffect(() => {
-        ws.on("mediaPositionResponse", (_, position) => {
+        const mediaPositonResEvent = ws.on("mediaPositionResponse", (_, position) => {
             setValue(position as number || 0)
         })
+
+        return () => { ws.removeEventListner(mediaPositonResEvent) }
     }, [])
 
     useEffect(() => {

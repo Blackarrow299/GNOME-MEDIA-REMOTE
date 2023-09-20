@@ -13,22 +13,23 @@ const PlayerScreen = () => {
   const [loading, setLoading] = useState(true)
   const [media, setMedia] = useState<Partial<AllPropsOutType>>({})
   useEffect(() => {
-    console.log(ws._ws ? "connected" : "disconnected")
-
     ws.emit("mediaSourceRequest")
 
-    ws.on("mediaUpdated", (_, data) => {
+    const mediaUpdatedEvent = ws.on("mediaUpdated", (_, data) => {
       setMedia((state) => {
         return { ...state, ...(data as Partial<AllPropsOutType>) }
       })
     })
 
-    ws.on("mediaSourceChanged", (_, data) => {
+    const mdiaSourceChangedEvent = ws.on("mediaSourceChanged", (_, data) => {
       setLoading(false)
       if (data) setMedia(data as AllPropsOutType)
     })
 
-    return () => ws.removeAllListeners()
+    return () => {
+      ws.removeEventListner(mediaUpdatedEvent)
+      ws.removeEventListner(mdiaSourceChangedEvent)
+    }
   }, [])
 
   function updateMediaProp<T extends keyof AllPropsInType>(fieldName: T, value: AllPropsInType[T]) {
