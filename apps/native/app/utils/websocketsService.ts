@@ -1,4 +1,5 @@
 import { createWsEvent, isValidEventData } from "../../../bridge/src/util/ws"
+import { EventsHandler } from "./events"
 
 type WsAction = {
   open: (ws: WebSocket, ev: Event) => void
@@ -8,21 +9,12 @@ type WsAction = {
   [key: string]: (ws: WebSocket, payload?: unknown) => void
 }
 
-type CustomWsEvents = Record<string, (ws: WebSocket, payload?: unknown) => void>
-
-class CustomWs {
+class CustomWs extends EventsHandler {
   _ws: WebSocket | null
-  private _openListners: WsAction["open"][]
-  private _closeListners: WsAction["close"][]
-  private _errorListners: WsAction["error"][]
-  private _customEventsListners: CustomWsEvents
-  // private _pingTimeout: NodeJS.Timeout | undefined
+
   constructor() {
+    super()
     this._ws = null
-    this._openListners = []
-    this._closeListners = []
-    this._errorListners = []
-    this._customEventsListners = {}
   }
 
   connect(url: string) {
@@ -36,20 +28,20 @@ class CustomWs {
     }
 
     this._ws.onopen = (ev) => {
-      this._openListners.forEach((fn) => {
-        fn(this._ws as WebSocket, ev)
+      (this.events.open?.length > 0) && this.events.open.forEach((e) => {
+        e.callback(this._ws as WebSocket, ev)
       })
     }
 
     this._ws.onclose = (ev) => {
-      this._closeListners.forEach((fn) => {
-        fn(this._ws as WebSocket, ev)
+      (this.events.close?.length > 0) && this.events.close.forEach((e) => {
+        e.callback(this._ws as WebSocket, ev)
       })
     }
 
     this._ws.onerror = (ev) => {
-      this._errorListners.forEach((fn) => {
-        fn(this._ws as WebSocket, ev)
+      (this.events.error?.length > 0) && this.events.error.forEach((e) => {
+        e.callback(this._ws as WebSocket, ev)
       })
     }
 
@@ -62,8 +54,8 @@ class CustomWs {
     try {
       const jsonData = JSON.parse(data.toString()) as { event: string; payload?: unknown }
       if (isValidEventData(jsonData)) {
-        if (!this._customEventsListners[jsonData.event]) return
-        this._customEventsListners[jsonData.event](this._ws!, jsonData.payload)
+        if (!this.events[jsonData.event]) return
+        this.events[jsonData.event].forEach((e) => e.callback(this._ws, jsonData.payload))
       }
     } catch (error) {
       console.log(error)
@@ -71,10 +63,7 @@ class CustomWs {
   }
 
   on<T extends keyof WsAction>(ev: T, fn: WsAction[T]) {
-    if (ev === "open") this._openListners.push(fn)
-    else if (ev === "close") this._closeListners.push(fn)
-    else if (ev === "error") this._errorListners.push(fn)
-    else this._customEventsListners[ev as string] = fn
+    return this.addEventListner(ev as string, fn)
   }
 
   emit(name: string, payload?: unknown) {
@@ -86,22 +75,6 @@ class CustomWs {
     this._ws?.close()
     this._ws = null
   }
-
-  removeAllListeners() {
-    console.log("removing listners")
-    this._openListners = []
-    this._closeListners = []
-    this._errorListners = []
-    this._customEventsListners = {}
-  }
-
-  // private heartbeat() {
-  //     clearTimeout(this._pingTimeout);
-
-  //     this._pingTimeout = setTimeout(() => {
-  //         this.close();
-  //     }, 10000 + 1000);
-  // }
 }
 
 export type CustomWsType = CustomWs

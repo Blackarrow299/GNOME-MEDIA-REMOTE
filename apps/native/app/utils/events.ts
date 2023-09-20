@@ -1,14 +1,14 @@
-type Event = { callback: (data?: any) => void, index: number }
+type Event = { callback: (...args) => void, index: number }
 
-class EventHandler {
+export class EventsHandler {
 
-    private events: Record<string, Event[]>
+    protected events: Record<string, Event[]>
 
     constructor() {
         this.events = {}
     }
 
-    addEventListner(name: string, callback: () => void) {
+    addEventListner(name: string, callback: (...args) => void) {
         let index = 0
         if (this.events[name] && this.events[name].length > 0) {
             index = this.events[name][this.events[name].length - 1].index + 1
@@ -35,15 +35,19 @@ class EventHandler {
         }
     }
 
-    on(name: string, callback: () => void) {
+    on(name: string, callback: (...args) => void) {
         return this.addEventListner(name, callback)
     }
 
-    emit(name: string, data?: any) {
+    emit(name: string, ...args) {
         this.events[name].forEach((e) => {
-            e.callback(data)
+            e.callback(...args)
         })
+    }
+
+    removeAllListeners() {
+        this.events = {}
     }
 }
 
-export default new EventHandler()
+export default new EventsHandler()
