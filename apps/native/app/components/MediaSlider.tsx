@@ -24,6 +24,13 @@ const formatTime = (lengthInNs: number) => {
 const MediaSlider = ({ position, length, media }: Props) => {
     const sliderRef = useRef<Slider>(null)
     const [value, setValue] = useState(position || 0)
+
+    useEffect(() => {
+        ws.on("mediaPositionResponse", (_, position) => {
+            setValue(position as number || 0)
+        })
+    }, [])
+
     useEffect(() => {
         setValue(position || 0)
         if (media.PlaybackStatus === 'Playing' && !interval) {

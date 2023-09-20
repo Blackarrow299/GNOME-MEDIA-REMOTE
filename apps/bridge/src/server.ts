@@ -168,7 +168,7 @@ type WsEvents = Record<string, (ws: CustomWs, payload?: unknown) => void>
 
     async function handleMediaPositionRequest(ws: CustomWs) {
       if (ws.authorized) {
-        ws.send(createWsEvent("mediaUpdated", { Position: await player?.position }))
+        ws.send(createWsEvent("mediaPositionResponse", await player?.position))
       }
     }
 
