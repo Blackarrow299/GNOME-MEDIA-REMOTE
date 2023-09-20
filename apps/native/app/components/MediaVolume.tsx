@@ -1,9 +1,10 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { Slider } from "@miblanchard/react-native-slider"
 import { colors } from "app/theme"
-import { useState } from "react"
-import { StyleSheet, View, ViewProps } from "react-native"
+import { useEffect, useState } from "react"
+import { StyleSheet, TouchableOpacity, View, ViewProps } from "react-native"
 import { AllPropsInType, AllPropsOutType } from "../../../bridge/src/mpris/Player"
+import events from "app/utils/events"
 
 interface Props extends ViewProps {
     media: Partial<AllPropsOutType>
@@ -14,9 +15,19 @@ const MediaVolume = ({ media, updateMediaProp, ...props }: Props) => {
 
     const [isOpen, setIsOpen] = useState(false)
 
+    useEffect(() => {
+        const myEvent = events.on("screenClick", () => {
+            setIsOpen(false)
+        })
+
+        return () => {
+            events.removeEventListner(myEvent)
+        }
+    }, [])
+
     return (
         <View {...props}>
-            <View style={styles.container}>
+            <TouchableOpacity style={styles.container}>
                 <MaterialCommunityIcons
                     style={styles.btn}
                     name="volume-medium"
@@ -53,7 +64,7 @@ const MediaVolume = ({ media, updateMediaProp, ...props }: Props) => {
                     />
                 </View>}
 
-            </View>
+            </TouchableOpacity>
         </View>
     )
 }

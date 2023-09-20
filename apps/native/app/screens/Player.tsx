@@ -1,4 +1,4 @@
-import { ActivityIndicator, Image, StyleSheet, View } from "react-native"
+import { ActivityIndicator, Image, StyleSheet, TouchableWithoutFeedback, View } from "react-native"
 import ws from "app/utils/websocketsService"
 import { useEffect, useState } from "react"
 import { colors, typography } from "app/theme"
@@ -7,6 +7,7 @@ import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons"
 import { AllPropsInType, AllPropsOutType } from "../../../bridge/src/mpris/Player"
 import MediaSlider from "app/components/MediaSlider"
 import MediaVolume from "app/components/MediaVolume"
+import events from "app/utils/events"
 
 const PlayerScreen = () => {
   const [loading, setLoading] = useState(true)
@@ -44,119 +45,121 @@ const PlayerScreen = () => {
     )
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.imageContainer}>
-          {media?.Metadata?.art && <Image source={{ uri: media?.Metadata?.art }} style={styles.image} />}
+    <TouchableWithoutFeedback onPress={() => events.emit("screenClick")}>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <View style={styles.imageContainer}>
+            {media?.Metadata?.art && <Image source={{ uri: media?.Metadata?.art }} style={styles.image} />}
+          </View>
         </View>
-      </View>
-      <View style={styles.titleArtistTextContainer}>
-        <TextTicker
-          style={styles.mediaTitleText}
-          scrollSpeed={500}
-          loop
-          bounce
-          repeatSpacer={50}
-          marqueeDelay={1000}
-        >
-          {media?.Metadata?.title}
-        </TextTicker>
-        <TextTicker
-          style={styles.mediaArtistText}
-          duration={3000}
-          loop
-          bounce
-          repeatSpacer={50}
-          marqueeDelay={1000}
-        >
-          {media?.Metadata?.artist}
-        </TextTicker>
-      </View>
-      <View style={styles.mediaControllContainer}>
-        <View style={styles.mediaControllHeader}>
-          {!media?.CanControl ? (
-            <MaterialCommunityIcons name="shuffle" size={22} color={colors.palette.neutral400} />
-          ) : !media.Shuffle ? (
-            <MaterialCommunityIcons
-              name="shuffle-disabled"
-              size={22}
-              color={colors.palette.neutral900}
-              onPress={() => updateMediaProp("Shuffle", true)}
-            />
-          ) : (
-            <MaterialCommunityIcons
-              name="shuffle" size={22}
-              color={colors.palette.neutral900}
-              onPress={() => updateMediaProp("Shuffle", false)}
-            />
-          )}
-          {!media?.CanControl ? (
-            <MaterialCommunityIcons name="repeat" size={22} color={colors.palette.neutral400} />
-          ) : media.LoopStatus === "None" ? (
-            <MaterialCommunityIcons
-              name="repeat-off"
-              size={22}
-              color="black"
-              onPress={() => updateMediaProp("LoopStatus", "Track")}
-            />
-          ) : (
-            <MaterialCommunityIcons
-              name="repeat"
-              size={22}
-              color="black"
-              onPress={() => updateMediaProp("LoopStatus", "None")}
-            />
-          )}
+        <View style={styles.titleArtistTextContainer}>
+          <TextTicker
+            style={styles.mediaTitleText}
+            scrollSpeed={500}
+            loop
+            bounce
+            repeatSpacer={50}
+            marqueeDelay={1000}
+          >
+            {media?.Metadata?.title}
+          </TextTicker>
+          <TextTicker
+            style={styles.mediaArtistText}
+            duration={3000}
+            loop
+            bounce
+            repeatSpacer={50}
+            marqueeDelay={1000}
+          >
+            {media?.Metadata?.artist}
+          </TextTicker>
         </View>
-        <MediaSlider media={media} position={media.Position ? +media.Position : undefined} length={media.Metadata?.length ? +media.Metadata?.length : undefined} />
-        <View style={styles.mediaControllFooter}>
-          {/* <MaterialCommunityIcons
+        <View style={styles.mediaControllContainer}>
+          <View style={styles.mediaControllHeader}>
+            {!media?.CanControl ? (
+              <MaterialCommunityIcons name="shuffle" size={22} color={colors.palette.neutral400} />
+            ) : !media.Shuffle ? (
+              <MaterialCommunityIcons
+                name="shuffle-disabled"
+                size={22}
+                color={colors.palette.neutral900}
+                onPress={() => updateMediaProp("Shuffle", true)}
+              />
+            ) : (
+              <MaterialCommunityIcons
+                name="shuffle" size={22}
+                color={colors.palette.neutral900}
+                onPress={() => updateMediaProp("Shuffle", false)}
+              />
+            )}
+            {!media?.CanControl ? (
+              <MaterialCommunityIcons name="repeat" size={22} color={colors.palette.neutral400} />
+            ) : media.LoopStatus === "None" ? (
+              <MaterialCommunityIcons
+                name="repeat-off"
+                size={22}
+                color="black"
+                onPress={() => updateMediaProp("LoopStatus", "Track")}
+              />
+            ) : (
+              <MaterialCommunityIcons
+                name="repeat"
+                size={22}
+                color="black"
+                onPress={() => updateMediaProp("LoopStatus", "None")}
+              />
+            )}
+          </View>
+          <MediaSlider media={media} position={media.Position ? +media.Position : undefined} length={media.Metadata?.length ? +media.Metadata?.length : undefined} />
+          <View style={styles.mediaControllFooter}>
+            {/* <MaterialCommunityIcons
             style={styles.volumeBtn}
             name="volume-medium"
             size={26}
             color={media?.CanControl ? 'black' : colors.palette.neutral400}
           /> */}
-          <MediaVolume style={styles.volumeBtn} media={media} updateMediaProp={updateMediaProp} />
-          <View style={styles.mediaPlaybackControll}>
-            <Ionicons
-              name="md-play-skip-back"
-              size={30}
-              color={media?.CanGoPrevious ? colors.palette.primary500 : colors.palette.neutral400}
-              onPress={() => (media?.CanGoPrevious) && ws.emit("prevMedia")}
-            />
-            <View style={styles.playBtn}>
-              {media?.PlaybackStatus === "Playing" ? (
-                <MaterialCommunityIcons
-                  name="pause"
-                  size={40}
-                  color={media?.CanPause ? 'white' : colors.palette.neutral400}
-                  onPress={() => ws.emit("pauseMedia")}
-                />
-              ) : (
-                <MaterialCommunityIcons
-                  name="play"
-                  size={40}
-                  color={media?.CanPlay ? 'white' : colors.palette.neutral400}
-                  onPress={() => ws.emit("playMedia")}
-                />
-              )}
+            <MediaVolume style={styles.volumeBtn} media={media} updateMediaProp={updateMediaProp} />
+            <View style={styles.mediaPlaybackControll}>
+              <Ionicons
+                name="md-play-skip-back"
+                size={30}
+                color={media?.CanGoPrevious ? colors.palette.primary500 : colors.palette.neutral400}
+                onPress={() => (media?.CanGoPrevious) && ws.emit("prevMedia")}
+              />
+              <View style={styles.playBtn}>
+                {media?.PlaybackStatus === "Playing" ? (
+                  <MaterialCommunityIcons
+                    name="pause"
+                    size={40}
+                    color={media?.CanPause ? 'white' : colors.palette.neutral400}
+                    onPress={() => ws.emit("pauseMedia")}
+                  />
+                ) : (
+                  <MaterialCommunityIcons
+                    name="play"
+                    size={40}
+                    color={media?.CanPlay ? 'white' : colors.palette.neutral400}
+                    onPress={() => ws.emit("playMedia")}
+                  />
+                )}
+              </View>
+              <Ionicons
+                name="md-play-skip-forward"
+                size={30}
+                color={media?.CanGoNext ? colors.palette.primary500 : colors.palette.neutral400}
+                onPress={() => (media?.CanGoNext) && ws.emit("nextMedia")}
+              />
             </View>
-            <Ionicons
-              name="md-play-skip-forward"
-              size={30}
-              color={media?.CanGoNext ? colors.palette.primary500 : colors.palette.neutral400}
-              onPress={() => (media?.CanGoNext) && ws.emit("nextMedia")}
+            <MaterialCommunityIcons
+              style={styles.deviceVolumeBtn}
+              name="devices"
+              size={22}
+              color={'black'}
             />
           </View>
-          <MaterialCommunityIcons
-            style={styles.deviceVolumeBtn}
-            name="devices"
-            size={22}
-            color={'black'}
-          />
         </View>
       </View>
-    </View>
+    </TouchableWithoutFeedback>
   )
 }
 
