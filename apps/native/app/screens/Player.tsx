@@ -77,21 +77,21 @@ const PlayerScreen = () => {
         </View>
         <View style={styles.mediaControllContainer}>
           <View style={styles.mediaControllHeader}>
-            <TouchableOpacity onPress={() => { (media.CanControl) && (!media.Shuffle) ? updateMediaProp("Shuffle", true) : updateMediaProp("Shuffle", false) }}>
+            <TouchableOpacity onPress={() => { (media.CanControl) && updateMediaProp("Shuffle", !media.Shuffle) }}>
               <MaterialCommunityIcons
                 name={(!media.CanControl || media.Shuffle) ? 'shuffle' : 'shuffle-disabled'}
                 size={22}
                 color={(!media.CanControl) ? colors.palette.neutral400 : colors.palette.neutral900}
               />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => { (media.CanControl) && (media.LoopStatus === "None") ? updateMediaProp("LoopStatus", "Track") : updateMediaProp("LoopStatus", "None") }}>
+            <TouchableOpacity onPress={() => { updateMediaProp("LoopStatus", (media.CanControl) && (media.LoopStatus === "None") ? "Track" : "None") }}>
               <MaterialCommunityIcons
                 name={(!media.CanControl || media.LoopStatus !== "None") ? "repeat" : "repeat-off"}
                 size={22}
                 color={(!media.CanControl) ? colors.palette.neutral400 : colors.palette.neutral900} />
             </TouchableOpacity>
           </View>
-          <MediaSlider media={media} position={media.Position ? +media.Position : undefined} length={media.Metadata?.length ? +media.Metadata?.length : undefined} />
+          <MediaSlider media={media} />
           <View style={styles.mediaControllFooter}>
             <MediaVolume style={styles.volumeBtn} media={media} updateMediaProp={updateMediaProp} />
             <View style={styles.mediaPlaybackControll}>
@@ -102,7 +102,7 @@ const PlayerScreen = () => {
                   color={media?.CanGoPrevious ? colors.palette.primary500 : colors.palette.neutral400}
                 />
               </TouchableOpacity>
-              <TouchableOpacity style={styles.playBtn} onPress={() => { media?.PlaybackStatus === "Playing" ? ws.emit("pauseMedia") : ws.emit("playMedia") }}>
+              <TouchableOpacity style={styles.playBtn} onPress={() => { ws.emit(media?.PlaybackStatus === "Playing" ? "pauseMedia" : "playMedia") }}>
                 {media?.PlaybackStatus === "Playing" ? (
                   <MaterialCommunityIcons
                     name="pause"

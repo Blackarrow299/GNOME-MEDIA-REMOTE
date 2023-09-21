@@ -6,8 +6,6 @@ import { AllPropsOutType } from "../../../bridge/src/mpris/Player"
 import ws from "app/utils/websocketsService"
 
 interface Props {
-    position: number | undefined,
-    length: number | undefined,
     media: Partial<AllPropsOutType>
 }
 
@@ -21,9 +19,9 @@ const formatTime = (lengthInNs: number) => {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 }
 
-const MediaSlider = ({ position, length, media }: Props) => {
+const MediaSlider = ({ media }: Props) => {
     const sliderRef = useRef<Slider>(null)
-    const [value, setValue] = useState(position || 0)
+    const [value, setValue] = useState(media.Position || 0)
 
     useEffect(() => {
         const mediaPositonResEvent = ws.on("mediaPositionResponse", (_, position) => {
@@ -54,9 +52,9 @@ const MediaSlider = ({ position, length, media }: Props) => {
         <View style={styles.container}>
             <Slider
                 ref={sliderRef}
-                value={value}
+                value={+value}
                 minimumValue={0}
-                maximumValue={length || 1}
+                maximumValue={+(media.Metadata?.length || 1)}
                 maximumTrackTintColor="#cccccc"
                 minimumTrackTintColor={colors.palette.primary500}
                 thumbTintColor={colors.palette.primary500}
@@ -65,7 +63,7 @@ const MediaSlider = ({ position, length, media }: Props) => {
                 containerStyle={{ paddingVertical: 0, marginVertical: 0, padding: 0, margin: 0 }}
             />
             <View style={styles.textContainer}>
-                <Text style={styles.text}>{formatTime(value)}</Text>
+                <Text style={styles.text}>{formatTime(+value)}</Text>
                 <Text style={styles.text}>{length ? formatTime(length) : ''}</Text>
             </View>
         </View>
