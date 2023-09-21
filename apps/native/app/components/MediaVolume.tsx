@@ -12,14 +12,12 @@ interface Props extends ViewProps {
 }
 
 const MediaVolume = ({ media, updateMediaProp, ...props }: Props) => {
-
     const [isOpen, setIsOpen] = useState(false)
 
     useEffect(() => {
         const screenClickEvent = events.on("screenClick", () => {
             setIsOpen(false)
         })
-
         return () => {
             events.removeEventListner(screenClickEvent)
         }
@@ -27,13 +25,12 @@ const MediaVolume = ({ media, updateMediaProp, ...props }: Props) => {
 
     return (
         <View {...props}>
-            <TouchableOpacity style={styles.container}>
+            <TouchableOpacity style={styles.container} onPress={() => setIsOpen(state => !state)}>
                 <MaterialCommunityIcons
                     style={styles.btn}
                     name="volume-medium"
                     size={26}
                     color={media?.CanControl ? 'black' : colors.palette.neutral400}
-                    onPress={() => setIsOpen(state => !state)}
                 />
                 {isOpen && media.CanControl && <View style={{
                     position: 'absolute',

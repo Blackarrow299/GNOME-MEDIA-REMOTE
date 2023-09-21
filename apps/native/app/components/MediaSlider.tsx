@@ -34,7 +34,7 @@ const MediaSlider = ({ position, length, media }: Props) => {
     }, [])
 
     useEffect(() => {
-        setValue(position || 0)
+        // setValue(position || 0)
         if (media.PlaybackStatus === 'Playing' && !interval) {
             interval = setInterval(() => {
                 // setValue((state) => state + 1e6)

@@ -1,4 +1,4 @@
-import { ActivityIndicator, Image, StyleSheet, TouchableWithoutFeedback, View } from "react-native"
+import { ActivityIndicator, Image, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native"
 import ws from "app/utils/websocketsService"
 import { useEffect, useState } from "react"
 import { colors, typography } from "app/theme"
@@ -56,7 +56,7 @@ const PlayerScreen = () => {
         <View style={styles.titleArtistTextContainer}>
           <TextTicker
             style={styles.mediaTitleText}
-            scrollSpeed={500}
+            scrollSpeed={20}
             loop
             bounce
             repeatSpacer={50}
@@ -66,7 +66,7 @@ const PlayerScreen = () => {
           </TextTicker>
           <TextTicker
             style={styles.mediaArtistText}
-            duration={3000}
+            scrollSpeed={20}
             loop
             bounce
             repeatSpacer={50}
@@ -77,86 +77,60 @@ const PlayerScreen = () => {
         </View>
         <View style={styles.mediaControllContainer}>
           <View style={styles.mediaControllHeader}>
-            {!media?.CanControl ? (
-              <MaterialCommunityIcons name="shuffle" size={22} color={colors.palette.neutral400} />
-            ) : !media.Shuffle ? (
+            <TouchableOpacity onPress={() => { (media.CanControl) && (!media.Shuffle) ? updateMediaProp("Shuffle", true) : updateMediaProp("Shuffle", false) }}>
               <MaterialCommunityIcons
-                name="shuffle-disabled"
+                name={(!media.CanControl || media.Shuffle) ? 'shuffle' : 'shuffle-disabled'}
                 size={22}
-                color={colors.palette.neutral900}
-                onPress={() => updateMediaProp("Shuffle", true)}
+                color={(!media.CanControl) ? colors.palette.neutral400 : colors.palette.neutral900}
               />
-            ) : (
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => { (media.CanControl) && (media.LoopStatus === "None") ? updateMediaProp("LoopStatus", "Track") : updateMediaProp("LoopStatus", "None") }}>
               <MaterialCommunityIcons
-                name="shuffle" size={22}
-                color={colors.palette.neutral900}
-                onPress={() => updateMediaProp("Shuffle", false)}
-              />
-            )}
-            {!media?.CanControl ? (
-              <MaterialCommunityIcons name="repeat" size={22} color={colors.palette.neutral400} />
-            ) : media.LoopStatus === "None" ? (
-              <MaterialCommunityIcons
-                name="repeat-off"
+                name={(!media.CanControl || media.LoopStatus !== "None") ? "repeat" : "repeat-off"}
                 size={22}
-                color="black"
-                onPress={() => updateMediaProp("LoopStatus", "Track")}
-              />
-            ) : (
-              <MaterialCommunityIcons
-                name="repeat"
-                size={22}
-                color="black"
-                onPress={() => updateMediaProp("LoopStatus", "None")}
-              />
-            )}
+                color={(!media.CanControl) ? colors.palette.neutral400 : colors.palette.neutral900} />
+            </TouchableOpacity>
           </View>
           <MediaSlider media={media} position={media.Position ? +media.Position : undefined} length={media.Metadata?.length ? +media.Metadata?.length : undefined} />
           <View style={styles.mediaControllFooter}>
-            {/* <MaterialCommunityIcons
-            style={styles.volumeBtn}
-            name="volume-medium"
-            size={26}
-            color={media?.CanControl ? 'black' : colors.palette.neutral400}
-          /> */}
             <MediaVolume style={styles.volumeBtn} media={media} updateMediaProp={updateMediaProp} />
             <View style={styles.mediaPlaybackControll}>
-              <Ionicons
-                name="md-play-skip-back"
-                size={30}
-                color={media?.CanGoPrevious ? colors.palette.primary500 : colors.palette.neutral400}
-                onPress={() => (media?.CanGoPrevious) && ws.emit("prevMedia")}
-              />
-              <View style={styles.playBtn}>
+              <TouchableOpacity onPress={() => (media?.CanGoPrevious) && ws.emit("prevMedia")}>
+                <Ionicons
+                  name="md-play-skip-back"
+                  size={30}
+                  color={media?.CanGoPrevious ? colors.palette.primary500 : colors.palette.neutral400}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.playBtn} onPress={() => { media?.PlaybackStatus === "Playing" ? ws.emit("pauseMedia") : ws.emit("playMedia") }}>
                 {media?.PlaybackStatus === "Playing" ? (
                   <MaterialCommunityIcons
                     name="pause"
                     size={40}
                     color={media?.CanPause ? 'white' : colors.palette.neutral400}
-                    onPress={() => ws.emit("pauseMedia")}
                   />
                 ) : (
                   <MaterialCommunityIcons
                     name="play"
                     size={40}
                     color={media?.CanPlay ? 'white' : colors.palette.neutral400}
-                    onPress={() => ws.emit("playMedia")}
                   />
                 )}
-              </View>
-              <Ionicons
-                name="md-play-skip-forward"
-                size={30}
-                color={media?.CanGoNext ? colors.palette.primary500 : colors.palette.neutral400}
-                onPress={() => (media?.CanGoNext) && ws.emit("nextMedia")}
-              />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => (media?.CanGoNext) && ws.emit("nextMedia")}>
+                <Ionicons
+                  name="md-play-skip-forward"
+                  size={30}
+                  color={media?.CanGoNext ? colors.palette.primary500 : colors.palette.neutral400}
+                />
+              </TouchableOpacity>
             </View>
-            <MaterialCommunityIcons
+            {/* <MaterialCommunityIcons
               style={styles.deviceVolumeBtn}
               name="devices"
               size={22}
               color={'black'}
-            />
+            /> */}
           </View>
         </View>
       </View>
@@ -168,10 +142,6 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
     paddingTop: 20,
-  },
-  deviceVolumeBtn: {
-    position: "absolute",
-    right: 0,
   },
   header: {
     alignItems: "center",
