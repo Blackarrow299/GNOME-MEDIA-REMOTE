@@ -72,6 +72,7 @@ class CustomWs extends EventsHandler {
 
   close() {
     console.log("closing ws")
+    this.removeAllListeners()
     this._ws?.close()
     this._ws = null
   }

@@ -10,7 +10,17 @@ import * as Screens from "app/screens"
 // import { colors } from "app/theme"
 import BootSplash from "react-native-bootsplash"
 import { RootStackParamList } from "app/types"
-import { typography } from "app/theme"
+import { colors, typography } from "app/theme"
+import { Ionicons } from '@expo/vector-icons';
+import { StyleSheet, Text } from "react-native"
+import {
+  Menu,
+  MenuOptions,
+  MenuOption,
+  MenuTrigger,
+} from 'react-native-popup-menu';
+import ws from "app/utils/websocketsService"
+
 
 export type AppStackScreenProps<T extends keyof RootStackParamList> = NativeStackScreenProps<
   RootStackParamList,
@@ -38,13 +48,31 @@ const AppStack = () => {
         component={Screens.CodeConfirm}
         options={{ headerTitle: "Pair Code" }}
       />
-      <Stack.Screen name="Player" component={Screens.Player} options={{ headerTitle: "Player" }} />
+      <Stack.Screen
+        name="Player"
+        component={Screens.Player}
+        options={({ navigation }) => ({
+          headerTitle: "Playing Now",
+          headerRight: () => (
+            <Menu >
+              <MenuTrigger>
+                <Ionicons color='black' size={25} name="menu" />
+              </MenuTrigger>
+              <MenuOptions optionsContainerStyle={{ borderRadius: 10 }}>
+                <MenuOption onSelect={() => { ws.close(); navigation.navigate('DeviceDiscovery') }}>
+                  <Text style={styles.menuBtn}>Unpair</Text>
+                </MenuOption>
+              </MenuOptions>
+            </Menu>
+          )
+        })}
+      />
     </Stack.Navigator>
   )
 }
 
 export interface NavigationProps
-  extends Partial<React.ComponentProps<typeof NavigationContainer>> {}
+  extends Partial<React.ComponentProps<typeof NavigationContainer>> { }
 
 export const AppNavigator = (props: NavigationProps) => {
   // const colorScheme = useColorScheme()
@@ -61,3 +89,13 @@ export const AppNavigator = (props: NavigationProps) => {
     </NavigationContainer>
   )
 }
+
+const styles = StyleSheet.create({
+  menuBtn: {
+    color: colors.palette.neutral900,
+    fontFamily: typography.primary.semiBold,
+    fontWeight: "500",
+    marginLeft: 4,
+    paddingVertical: 6
+  }
+})

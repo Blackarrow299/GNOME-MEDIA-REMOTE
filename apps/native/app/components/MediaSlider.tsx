@@ -64,7 +64,7 @@ const MediaSlider = ({ media }: Props) => {
             />
             <View style={styles.textContainer}>
                 <Text style={styles.text}>{formatTime(+value)}</Text>
-                <Text style={styles.text}>{length ? formatTime(length) : ''}</Text>
+                <Text style={styles.text}>{media.Metadata?.length ? formatTime(+media.Metadata.length) : ''}</Text>
             </View>
         </View>
     )

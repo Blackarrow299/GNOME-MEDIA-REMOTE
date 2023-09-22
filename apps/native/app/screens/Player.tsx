@@ -46,7 +46,7 @@ const PlayerScreen = () => {
     )
 
   return (
-    <TouchableWithoutFeedback onPress={() => events.emit("screenClick")}>
+    <TouchableWithoutFeedback touchSoundDisabled onPress={() => events.emit("screenClick")}>
       <View style={styles.container}>
         <View style={styles.header}>
           <View style={styles.imageContainer}>
