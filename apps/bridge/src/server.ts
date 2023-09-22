@@ -55,6 +55,12 @@ type WsEvents = Record<string, (ws: CustomWs, payload?: unknown) => void>
 
       console.log("connected")
 
+      setTimeout(() => {
+        if (!ws.authorized) {
+          ws.terminate()
+        }
+      }, 600000)
+
       onUpdate((data) => ws.authorized && ws.send(createWsEvent("mediaUpdated", data)))
       onChange(
         async (player) =>
@@ -136,9 +142,9 @@ type WsEvents = Record<string, (ws: CustomWs, payload?: unknown) => void>
       if (ws.authorized) ws.send(createWsEvent("mediaSourceChanged", data))
     }
 
-    async function handleUpdateMediaEvent(ws: CustomWs, payload: unknown) {
+    function handleUpdateMediaEvent(ws: CustomWs, payload: unknown) {
       if (ws.authorized && payload && typeof payload === "object") {
-        await player?.updateFields(payload as Partial<AllPropsInType>)
+        player?.updateFields(payload as Partial<AllPropsInType>)
       }
     }
 
