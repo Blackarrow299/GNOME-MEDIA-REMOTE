@@ -36,7 +36,6 @@ const CodeConfirmScreen = ({ route, navigation }: ScreenProps) => {
 
     ws.on("open", () => {
       setLoading(false)
-      console.log("ws open")
       requestPairCode()
     })
 
@@ -57,15 +56,13 @@ const CodeConfirmScreen = ({ route, navigation }: ScreenProps) => {
     })
 
     ws.on("error", () => {
-      // an error occurred
-      console.error("error")
       setError("websocket error")
       setLoading(false)
     })
 
-    ws.on("close", (_, e) => {
+    ws.on("close", () => {
       // connection closed
-      console.log(e.code, e.reason)
+      navigation.replace("DeviceDiscovery")
     })
 
     return () => ws.removeAllListeners()

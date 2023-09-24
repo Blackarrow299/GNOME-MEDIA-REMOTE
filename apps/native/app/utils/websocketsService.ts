@@ -18,8 +18,6 @@ class CustomWs extends EventsHandler {
   }
 
   connect(url: string) {
-    console.log("ws trying to connect")
-
     if (this._ws && this._ws.url !== url) {
       this.close()
       this._ws = new WebSocket(url)
@@ -58,7 +56,7 @@ class CustomWs extends EventsHandler {
         this.events[jsonData.event].forEach((e) => e.callback(this._ws, jsonData.payload))
       }
     } catch (error) {
-      console.log(error)
+      // console.log(error)
     }
   }
 
@@ -71,7 +69,6 @@ class CustomWs extends EventsHandler {
   }
 
   close() {
-    console.log("closing ws")
     this.removeAllListeners()
     this._ws?.close()
     this._ws = null
