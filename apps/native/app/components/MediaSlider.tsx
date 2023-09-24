@@ -45,6 +45,7 @@ const MediaSlider = ({ media }: Props) => {
     }, [media])
 
     const seek = (position: number[]) => {
+        if (!media.CanSeek) return
         ws.emit("mediaSeek", { position: position[0].toFixed(0).toString(), id: media.Metadata?.trackId })
     }
 
@@ -57,10 +58,11 @@ const MediaSlider = ({ media }: Props) => {
                 maximumValue={+(media.Metadata?.length || 1)}
                 maximumTrackTintColor="#cccccc"
                 minimumTrackTintColor={colors.palette.primary500}
-                thumbTintColor={colors.palette.primary500}
+                thumbTintColor={media.CanSeek ? colors.palette.primary500 : colors.palette.neutral400}
                 thumbStyle={{ height: 10, width: 10 }}
                 onSlidingComplete={seek}
                 containerStyle={{ paddingVertical: 0, marginVertical: 0, padding: 0, margin: 0 }}
+                disabled={!media.CanSeek}
             />
             <View style={styles.textContainer}>
                 <Text style={styles.text}>{formatTime(+value)}</Text>

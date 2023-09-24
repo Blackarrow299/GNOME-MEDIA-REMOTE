@@ -62,6 +62,9 @@ const AppStack = () => {
                 <MenuOption onSelect={() => { ws.close(); navigation.replace('DeviceDiscovery') }}>
                   <Text style={styles.menuBtn}>Unpair</Text>
                 </MenuOption>
+                <MenuOption onSelect={() => { ws.emit("mediaSourceRequest") }}>
+                  <Text style={styles.menuBtn}>Refresh</Text>
+                </MenuOption>
               </MenuOptions>
             </Menu>
           ),
