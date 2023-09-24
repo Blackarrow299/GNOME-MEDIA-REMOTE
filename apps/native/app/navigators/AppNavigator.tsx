@@ -41,7 +41,7 @@ const AppStack = () => {
       <Stack.Screen
         name="DeviceDiscovery"
         component={Screens.DeviceDiscovery}
-        options={{ headerTitle: "Scan Devices" }}
+        options={{ headerTitle: "Scan Devices", headerBackVisible: false }}
       />
       <Stack.Screen
         name="CodeConfirm"
@@ -65,7 +65,7 @@ const AppStack = () => {
               </MenuOptions>
             </Menu>
           ),
-          headerLeft: () => null
+          headerBackVisible: false
         })}
       />
     </Stack.Navigator>

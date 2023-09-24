@@ -30,7 +30,6 @@ const CodeConfirmScreen = ({ route, navigation }: ScreenProps) => {
   }
 
   useEffect(() => {
-    // for debug
     if (ws._ws) setLoading(false)
     ws.connect(`ws://${server.address}:8765`)
 
@@ -61,6 +60,7 @@ const CodeConfirmScreen = ({ route, navigation }: ScreenProps) => {
     })
 
     ws.on("close", () => {
+      Alert.alert("Oops!", "Connection lost.")
       // connection closed
       navigation.replace("DeviceDiscovery")
     })
