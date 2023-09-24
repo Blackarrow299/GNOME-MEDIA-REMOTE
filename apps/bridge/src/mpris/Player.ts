@@ -81,7 +81,7 @@ export default class MediaPlayer {
   }
 
   get position(): Promise<string | undefined> {
-    return this.getProp("Position").then((v: bigint) => v.toString())
+    return this.getProp("Position").then((v: bigint | undefined) => v?.toString())
   }
 
   get minimumRate(): Promise<number | undefined> {

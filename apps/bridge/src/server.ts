@@ -178,9 +178,9 @@ type WsEvents = Record<string, (ws: CustomWs, payload?: unknown) => void>
       }
     }
 
-    async function handleMediaSeek(ws: CustomWs, payload: unknown) {
+    function handleMediaSeek(ws: CustomWs, payload: unknown) {
       if (ws.authorized && payload && typeof payload === "object" && "position" in payload && "id" in payload) {
-        await player?.setPostition(payload as { id: string, position: string })
+        player?.setPostition(payload as { id: string, position: string })
       }
     }
   })()
