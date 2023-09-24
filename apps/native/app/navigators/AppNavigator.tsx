@@ -59,12 +59,13 @@ const AppStack = () => {
                 <Ionicons color='black' size={25} name="menu" />
               </MenuTrigger>
               <MenuOptions optionsContainerStyle={{ borderRadius: 10 }}>
-                <MenuOption onSelect={() => { ws.close(); navigation.navigate('DeviceDiscovery') }}>
+                <MenuOption onSelect={() => { ws.close(); navigation.replace('DeviceDiscovery') }}>
                   <Text style={styles.menuBtn}>Unpair</Text>
                 </MenuOption>
               </MenuOptions>
             </Menu>
-          )
+          ),
+          headerLeft: () => null
         })}
       />
     </Stack.Navigator>

@@ -41,7 +41,7 @@ const CodeConfirmScreen = ({ route, navigation }: ScreenProps) => {
     })
 
     ws.on("pairCodeVerified", () => {
-      navigation.navigate("Player")
+      navigation.replace("Player")
     })
 
     ws.on("pairCodeIncorrect", () => {
@@ -87,7 +87,6 @@ const CodeConfirmScreen = ({ route, navigation }: ScreenProps) => {
 
   const handleOtpChange = (code: string) => {
     if (code.length === 5) {
-      console.log(code)
       setLoading(true)
       ws.emit("pairCodeVerification", { pair_code: code })
     }
