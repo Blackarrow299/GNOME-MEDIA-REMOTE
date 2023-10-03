@@ -16,6 +16,7 @@ import type {
 import type { Device, RootStackParamList } from "../types"
 import { colors, typography } from "app/theme"
 import dgram from "react-native-udp"
+import { delay } from "app/utils/delay"
 
 type ItemProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, "DeviceDiscovery", undefined>
@@ -56,9 +57,7 @@ const DeviceDiscoveryScreen = ({ navigation }: ScreenProps) => {
     setDevices([])
     const discoveryMessage = "DiscoverDevices_15dsa15s8"
     udpClient.send(discoveryMessage, 0, discoveryMessage.length, 60537, "255.255.255.255")
-    setTimeout(() => {
-      setRefreshing(false)
-    }, 2000)
+    delay(2000).then(() => setRefreshing(false))
   }, [])
 
   useEffect(() => {
@@ -69,6 +68,9 @@ const DeviceDiscoveryScreen = ({ navigation }: ScreenProps) => {
       }
     })
     refreshDevices()
+    return () => {
+      udpClient.removeAllListeners()
+    }
   }, [])
 
   return (

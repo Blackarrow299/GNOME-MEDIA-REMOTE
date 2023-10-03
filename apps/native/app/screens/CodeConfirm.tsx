@@ -9,64 +9,119 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import OTPTextInput from "react-native-otp-textinput"
 import { colors, typography } from "app/theme"
-import ws from "app/utils/websocketsService"
+import Device from "expo-device"
+import { randomString } from "server/src/util/randomString"
+import * as SecureStore from "expo-secure-store"
+
 type ScreenProps = NativeStackScreenProps<RootStackParamList, "CodeConfirm">
 
 const CodeConfirmScreen = ({ route, navigation }: ScreenProps) => {
   const server = route.params.targetDevice
 
   const otpInputRef = useRef<OTPTextInput>(null)
-
-  const [error, setError] = useState("")
   const [loading, setLoading] = useState(true)
 
-  // const deviceId = useMemo(() => `${Device.deviceName}#${randomString(4)}`, [])
+  const deviceId = useMemo(() => `${Device?.deviceName || "Device"}#${randomString(4)}`, [])
 
-  const requestPairCode = () => {
-    ws.emit("pairRequest")
+  const handleToken = async (token: string) => {
+    return fetch(`https://${server.address}:8765/session`, {
+      headers: {
+        X_TOKEN: token,
+      },
+    })
+      .then((res) => {
+        return res.json()
+      })
+      .then((data) => {
+        if (data.error) {
+          if (data.message === "JWT token has expired") {
+            requestPairCode()
+          } else {
+            throw Error()
+          }
+        } else {
+          navigation.replace("Player", {
+            targetDevice: route.params.targetDevice,
+            sessionId: data.sessionId,
+          })
+        }
+      })
+      .catch(() => {
+        Alert.alert("Oops!", "Something went wrong. Please try again. 😊")
+        navigation.replace("DeviceDiscovery")
+      })
+  }
+
+  const requestPairCode = async () => {
+    await fetch(`https://${server.address}:8765/pair-request`, {
+      method: "POST",
+      headers: {
+        "application-type": "application/json",
+      },
+      body: JSON.stringify({ device: deviceId }),
+    })
+      .then((res) => {
+        if (!res.ok) throw Error()
+      })
+      .catch(() => {
+        Alert.alert("Oops!", "Something went wrong. Please try again. 😊")
+        navigation.replace("DeviceDiscovery")
+      })
   }
 
   useEffect(() => {
-    if (ws._ws) setLoading(false)
-    ws.connect(`ws://${server.address}:8765`)
-
-    ws.on("open", () => {
+    ;(async () => {
+      const token = await SecureStore.getItemAsync("token")
+      if (token) {
+        await handleToken(token)
+      } else {
+        await requestPairCode()
+      }
       setLoading(false)
-      requestPairCode()
-    })
-
-    ws.on("pairCodeVerified", () => {
-      navigation.replace("Player")
-    })
-
-    ws.on("pairCodeIncorrect", () => {
-      Alert.alert("Oops!", "Wrong code. Please try again. 😊")
-      otpInputRef.current?.clear()
-      setLoading(false)
-    })
-
-    ws.on("PairingFailure", () => {
-      Alert.alert("Oops!", "Something went wrong. Please try again. 😊")
-      otpInputRef.current?.clear()
-      setLoading(false)
-    })
-
-    ws.on("error", () => {
-      setError("websocket error")
-      setLoading(false)
-    })
-
-    ws.on("close", () => {
-      Alert.alert("Oops!", "Connection lost.")
-      // connection closed
-      navigation.replace("DeviceDiscovery")
-    })
-
-    return () => ws.removeAllListeners()
+    })()
   }, [])
+
+  const handleOtpChange = async (code: string) => {
+    if (code.length === 5) {
+      setLoading(true)
+      await fetch(`https://${server.address}:8765/pair`, {
+        method: "POST",
+        headers: {
+          "application-type": "application/json",
+        },
+        body: JSON.stringify({ pair_code: code, device: deviceId }),
+      })
+        .then((res) => {
+          if (res.status === 401) {
+            throw Error("Wrong code")
+          } else if (!res.ok) {
+            throw Error()
+          } else {
+            return res.json()
+          }
+        })
+        .then(async (data) => {
+          await SecureStore.setItemAsync("token", data.token)
+          navigation.replace("Player", {
+            targetDevice: route.params.targetDevice,
+            sessionId: data.sessionId,
+          })
+        })
+        .catch((e) => {
+          if (e.message === "Invalid pair code.") {
+            Alert.alert("Oops!", "Wrong code. Please try again. 😊")
+          } else {
+            Alert.alert("Oops!", "Something went wrong. Please try again. 😊")
+            navigation.replace("DeviceDiscovery")
+          }
+        })
+      otpInputRef.current?.clear()
+      setLoading(false)
+    }
+  }
 
   if (loading)
     return (
@@ -74,20 +129,6 @@ const CodeConfirmScreen = ({ route, navigation }: ScreenProps) => {
         <ActivityIndicator size="large" color={colors.palette.primary500} />
       </View>
     )
-
-  if (error && !loading)
-    return (
-      <View>
-        <Text>error</Text>
-      </View>
-    )
-
-  const handleOtpChange = (code: string) => {
-    if (code.length === 5) {
-      setLoading(true)
-      ws.emit("pairCodeVerification", { pair_code: code })
-    }
-  }
 
   return (
     <KeyboardAvoidingView behavior={"height"} style={styles.container}>

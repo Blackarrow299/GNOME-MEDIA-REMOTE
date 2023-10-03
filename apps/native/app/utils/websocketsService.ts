@@ -1,6 +1,5 @@
 import { createWsEvent, isValidEventData } from "../../../bridge/src/util/ws"
 import { EventsHandler } from "./events"
-
 type WsAction = {
   open: (ws: WebSocket, ev: Event) => void
   error: (ws: WebSocket, ev: Event) => void
@@ -24,23 +23,27 @@ class CustomWs extends EventsHandler {
     } else if (!this._ws) {
       this._ws = new WebSocket(url)
     }
-
     this._ws.onopen = (ev) => {
-      (this.events.open?.length > 0) && this.events.open.forEach((e) => {
-        e.callback(this._ws as WebSocket, ev)
-      })
+      this.events.open?.length > 0 &&
+        this.events.open.forEach((e) => {
+          e.callback(this._ws as WebSocket, ev)
+        })
     }
 
     this._ws.onclose = (ev) => {
-      (this.events.close?.length > 0) && this.events.close.forEach((e) => {
-        e.callback(this._ws as WebSocket, ev)
-      })
+      this.events.close?.length > 0 &&
+        this.events.close.forEach((e) => {
+          e.callback(this._ws as WebSocket, ev)
+        })
+      this.close()
     }
 
     this._ws.onerror = (ev) => {
-      (this.events.error?.length > 0) && this.events.error.forEach((e) => {
-        e.callback(this._ws as WebSocket, ev)
-      })
+      this.events.error?.length > 0 &&
+        this.events.error.forEach((e) => {
+          e.callback(this._ws as WebSocket, ev)
+        })
+      this.close()
     }
 
     this._ws.onmessage = (ev) => {

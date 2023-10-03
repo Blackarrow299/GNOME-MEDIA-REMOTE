@@ -4,7 +4,7 @@ import React from "react"
 import { initialWindowMetrics, SafeAreaProvider } from "react-native-safe-area-context"
 import { AppNavigator } from "./navigators"
 import { customFontsToLoad } from "./theme"
-import { MenuProvider } from 'react-native-popup-menu';
+import { MenuProvider } from "react-native-popup-menu"
 
 export const NAVIGATION_PERSISTENCE_KEY = "NAVIGATION_STATE"
 

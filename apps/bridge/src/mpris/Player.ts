@@ -61,7 +61,7 @@ export default class MediaPlayer {
   }
 
   set loopStatus(value: LoopStatus) {
-    this.setProp("LoopStatus", new Variant('s', value))
+    this.setProp("LoopStatus", new Variant("s", value))
   }
 
   get shuffle(): Promise<boolean | undefined> {
@@ -69,7 +69,7 @@ export default class MediaPlayer {
   }
 
   set shuffle(value: boolean) {
-    this.setProp("Shuffle", new Variant('b', value))
+    this.setProp("Shuffle", new Variant("b", value))
   }
 
   get volume(): Promise<number | undefined> {
@@ -77,7 +77,7 @@ export default class MediaPlayer {
   }
 
   set volume(value: number) {
-    this.setProp("Volume", new Variant('d', +value))
+    this.setProp("Volume", new Variant("d", +value))
   }
 
   get position(): Promise<string | undefined> {
@@ -119,9 +119,9 @@ export default class MediaPlayer {
   updateField<T extends keyof AllPropsInType>(propName: T, value: AllPropsInType[T]) {
     const field = propName.charAt(0).toLowerCase() + propName.slice(1)
     if (field in this) {
-      (this as any)[field] = value
+      ;(this as any)[field] = value
     } else {
-      console.log(`Field '${field}' does not exist in class Player.`);
+      console.log(`Field '${field}' does not exist in class Player.`)
     }
   }
 
@@ -148,7 +148,7 @@ export default class MediaPlayer {
     this.callFunc("Previous")
   }
 
-  setPostition(args: { id: string, position: string }) {
+  setPostition(args: { id: string; position: string }) {
     this.callFunc("SetPosition", "ox", [args.id, args.position])
   }
 
@@ -162,8 +162,8 @@ export default class MediaPlayer {
         signature: "s",
         body: [
           "type='signal',sender='" +
-          this.name +
-          "',interface='org.freedesktop.DBus.Properties',member='PropertiesChanged'",
+            this.name +
+            "',interface='org.freedesktop.DBus.Properties',member='PropertiesChanged'",
         ],
       }),
     )
@@ -179,8 +179,8 @@ export default class MediaPlayer {
         signature: "s",
         body: [
           "type='signal',sender='" +
-          this.name +
-          "',interface='org.mpris.MediaPlayer2.Player',member='Seeked'",
+            this.name +
+            "',interface='org.mpris.MediaPlayer2.Player',member='Seeked'",
         ],
       }),
     )
@@ -196,8 +196,8 @@ export default class MediaPlayer {
         signature: "s",
         body: [
           "type='signal',sender='" +
-          this.name +
-          "',interface='org.freedesktop.DBus.Properties',member='PropertiesChanged'",
+            this.name +
+            "',interface='org.freedesktop.DBus.Properties',member='PropertiesChanged'",
         ],
       }),
     )
@@ -210,8 +210,8 @@ export default class MediaPlayer {
         signature: "s",
         body: [
           "type='signal',sender='" +
-          this.name +
-          "',interface='org.mpris.MediaPlayer2.Player',member='Seeked'",
+            this.name +
+            "',interface='org.mpris.MediaPlayer2.Player',member='Seeked'",
         ],
       }),
     )
@@ -260,33 +260,24 @@ export default class MediaPlayer {
   }
 
   async getAllProps(): Promise<Partial<AllPropsOutType>> {
-    const allProps: Partial<AllPropsOutType> = {}
-
-    const keysArray: (keyof AllPropsOutType)[] = [
-      "PlaybackStatus",
-      "LoopStatus",
-      "Rate",
-      "Shuffle",
-      "Volume",
-      "Position",
-      "MinimumRate",
-      "MaximumRate",
-      "CanGoNext",
-      "CanGoPrevious",
-      "CanPlay",
-      "CanPause",
-      "CanSeek",
-      "CanControl",
-    ]
-
-    for (const key of keysArray) {
-      const value = await this.getProp(key)
-      if (value) allProps[key] = value
+    const data = {
+      PlaybackStatus: await this.playbackStatus,
+      LoopStatus: await this.loopStatus,
+      Rate: await this.rate,
+      Shuffle: await this.shuffle,
+      Volume: await this.volume,
+      Position: await this.position,
+      MinimumRate: await this.minimumRate,
+      MaximumRate: await this.maximumRate,
+      CanGoNext: await this.canGoNext,
+      CanGoPrevious: await this.canGoPrevious,
+      CanPlay: await this.canPlay,
+      CanPause: await this.canPause,
+      CanSeek: await this.canSeek,
+      CanControl: await this.canControl,
+      Metadata: await this.metadata,
     }
 
-    const metadata = await this.metadata
-    allProps["Metadata"] = metadata
-
-    return allProps
+    return data
   }
 }

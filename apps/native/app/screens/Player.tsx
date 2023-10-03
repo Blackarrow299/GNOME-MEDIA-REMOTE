@@ -1,4 +1,12 @@
-import { ActivityIndicator, Image, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native"
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native"
 import ws from "app/utils/websocketsService"
 import { useEffect, useState } from "react"
 import { colors, typography } from "app/theme"
@@ -9,11 +17,40 @@ import MediaSlider from "app/components/MediaSlider"
 import MediaVolume from "app/components/MediaVolume"
 import events from "app/utils/events"
 
-const PlayerScreen = () => {
+const PlayerScreen = ({ navigation, route }) => {
+  const server = route.params.targetDevice
+  const sessionId = route.params.sessionId
+
   const [loading, setLoading] = useState(true)
   const [media, setMedia] = useState<Partial<AllPropsOutType>>({})
+
   useEffect(() => {
-    ws.emit("mediaSourceRequest")
+    if (ws._ws) setLoading(false)
+    ws.connect(`ws://${server.address}:8766`)
+
+    const openEvent = ws.on("open", () => {
+      ws.emit("authenticate", { sessionId })
+    })
+
+    const authSuccessEvent = ws.on("authSuccess", () => {
+      ws.emit("mediaSourceRequest")
+      setLoading(false)
+    })
+
+    const authFailEvent = ws.on("authFailure", () => {
+      Alert.alert("Oops!", "Something went wrong. Please try again. 😊")
+      navigation.replace("DeviceDiscovery")
+    })
+
+    const wsErrorEvent = ws.on("error", () => {
+      Alert.alert("Oops!", "Connection error.")
+      navigation.replace("DeviceDiscovery")
+    })
+
+    const wsCloseEvent = ws.on("close", () => {
+      Alert.alert("Oops!", "Connection lost.")
+      navigation.replace("DeviceDiscovery")
+    })
 
     const mediaUpdatedEvent = ws.on("mediaUpdated", (_, data) => {
       setMedia((state) => {
@@ -21,14 +58,18 @@ const PlayerScreen = () => {
       })
     })
 
-    const mdiaSourceChangedEvent = ws.on("mediaSourceChanged", (_, data) => {
-      setLoading(false)
+    const mediaSourceChangedEvent = ws.on("mediaSourceChanged", (_, data) => {
       if (data) setMedia(data as AllPropsOutType)
     })
 
     return () => {
+      ws.removeEventListner(openEvent)
       ws.removeEventListner(mediaUpdatedEvent)
-      ws.removeEventListner(mdiaSourceChangedEvent)
+      ws.removeEventListner(mediaSourceChangedEvent)
+      ws.removeEventListner(wsCloseEvent)
+      ws.removeEventListner(wsErrorEvent)
+      ws.removeEventListner(authSuccessEvent)
+      ws.removeEventListner(authFailEvent)
     }
   }, [])
 
@@ -50,7 +91,9 @@ const PlayerScreen = () => {
       <View style={styles.container}>
         <View style={styles.header}>
           <View style={styles.imageContainer}>
-            {media?.Metadata?.art && <Image source={{ uri: media?.Metadata?.art }} style={styles.image} />}
+            {media?.Metadata?.art && (
+              <Image source={{ uri: media?.Metadata?.art }} style={styles.image} />
+            )}
           </View>
         </View>
         <View style={styles.titleArtistTextContainer}>
@@ -77,47 +120,66 @@ const PlayerScreen = () => {
         </View>
         <View style={styles.mediaControllContainer}>
           <View style={styles.mediaControllHeader}>
-            <TouchableOpacity onPress={() => { (media.CanControl) && updateMediaProp("Shuffle", !media.Shuffle) }}>
+            <TouchableOpacity
+              onPress={() => {
+                media.CanControl && updateMediaProp("Shuffle", !media.Shuffle)
+              }}
+            >
               <MaterialCommunityIcons
-                name={(!media.CanControl || media.Shuffle) ? 'shuffle' : 'shuffle-disabled'}
+                name={!media.CanControl || media.Shuffle ? "shuffle" : "shuffle-disabled"}
                 size={22}
-                color={(!media.CanControl) ? colors.palette.neutral400 : colors.palette.neutral900}
+                color={!media.CanControl ? colors.palette.neutral400 : colors.palette.neutral900}
               />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => { updateMediaProp("LoopStatus", (media.CanControl) && (media.LoopStatus === "None") ? "Track" : "None") }}>
+            <TouchableOpacity
+              onPress={() => {
+                updateMediaProp(
+                  "LoopStatus",
+                  media.CanControl && media.LoopStatus === "None" ? "Track" : "None",
+                )
+              }}
+            >
               <MaterialCommunityIcons
-                name={(!media.CanControl || media.LoopStatus !== "None") ? "repeat" : "repeat-off"}
+                name={!media.CanControl || media.LoopStatus !== "None" ? "repeat" : "repeat-off"}
                 size={22}
-                color={(!media.CanControl) ? colors.palette.neutral400 : colors.palette.neutral900} />
+                color={!media.CanControl ? colors.palette.neutral400 : colors.palette.neutral900}
+              />
             </TouchableOpacity>
           </View>
           <MediaSlider media={media} />
           <View style={styles.mediaControllFooter}>
             <MediaVolume style={styles.volumeBtn} media={media} updateMediaProp={updateMediaProp} />
             <View style={styles.mediaPlaybackControll}>
-              <TouchableOpacity onPress={() => (media?.CanGoPrevious) && ws.emit("prevMedia")}>
+              <TouchableOpacity onPress={() => media?.CanGoPrevious && ws.emit("prevMedia")}>
                 <Ionicons
                   name="md-play-skip-back"
                   size={30}
-                  color={media?.CanGoPrevious ? colors.palette.primary500 : colors.palette.neutral400}
+                  color={
+                    media?.CanGoPrevious ? colors.palette.primary500 : colors.palette.neutral400
+                  }
                 />
               </TouchableOpacity>
-              <TouchableOpacity style={styles.playBtn} onPress={() => { ws.emit(media?.PlaybackStatus === "Playing" ? "pauseMedia" : "playMedia") }}>
+              <TouchableOpacity
+                style={styles.playBtn}
+                onPress={() => {
+                  ws.emit(media?.PlaybackStatus === "Playing" ? "pauseMedia" : "playMedia")
+                }}
+              >
                 {media?.PlaybackStatus === "Playing" ? (
                   <MaterialCommunityIcons
                     name="pause"
                     size={40}
-                    color={media?.CanPause ? 'white' : colors.palette.neutral400}
+                    color={media?.CanPause ? "white" : colors.palette.neutral400}
                   />
                 ) : (
                   <MaterialCommunityIcons
                     name="play"
                     size={40}
-                    color={media?.CanPlay ? 'white' : colors.palette.neutral400}
+                    color={media?.CanPlay ? "white" : colors.palette.neutral400}
                   />
                 )}
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => (media?.CanGoNext) && ws.emit("nextMedia")}>
+              <TouchableOpacity onPress={() => media?.CanGoNext && ws.emit("nextMedia")}>
                 <Ionicons
                   name="md-play-skip-forward"
                   size={30}
@@ -125,12 +187,6 @@ const PlayerScreen = () => {
                 />
               </TouchableOpacity>
             </View>
-            {/* <MaterialCommunityIcons
-              style={styles.deviceVolumeBtn}
-              name="devices"
-              size={22}
-              color={'black'}
-            /> */}
           </View>
         </View>
       </View>
@@ -159,7 +215,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     elevation: 2,
     height: 200,
-    width: "80%"
+    width: "80%",
   },
   loading: {
     paddingTop: 16,
@@ -221,7 +277,6 @@ const styles = StyleSheet.create({
   volumeBtn: {
     left: 0,
     position: "absolute",
-
   },
 })
 

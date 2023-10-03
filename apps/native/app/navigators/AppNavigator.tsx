@@ -11,16 +11,10 @@ import * as Screens from "app/screens"
 import BootSplash from "react-native-bootsplash"
 import { RootStackParamList } from "app/types"
 import { colors, typography } from "app/theme"
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from "@expo/vector-icons"
 import { StyleSheet, Text } from "react-native"
-import {
-  Menu,
-  MenuOptions,
-  MenuOption,
-  MenuTrigger,
-} from 'react-native-popup-menu';
+import { Menu, MenuOptions, MenuOption, MenuTrigger } from "react-native-popup-menu"
 import ws from "app/utils/websocketsService"
-
 
 export type AppStackScreenProps<T extends keyof RootStackParamList> = NativeStackScreenProps<
   RootStackParamList,
@@ -54,21 +48,30 @@ const AppStack = () => {
         options={({ navigation }) => ({
           headerTitle: "Playing Now",
           headerRight: () => (
-            <Menu >
+            <Menu>
               <MenuTrigger>
-                <Ionicons color='black' size={25} name="menu" />
+                <Ionicons color="black" size={25} name="menu" />
               </MenuTrigger>
               <MenuOptions optionsContainerStyle={{ borderRadius: 10 }}>
-                <MenuOption onSelect={() => { ws.close(); navigation.replace('DeviceDiscovery') }}>
+                <MenuOption
+                  onSelect={() => {
+                    ws.close()
+                    navigation.replace("DeviceDiscovery")
+                  }}
+                >
                   <Text style={styles.menuBtn}>Unpair</Text>
                 </MenuOption>
-                <MenuOption onSelect={() => { ws.emit("mediaSourceRequest") }}>
+                <MenuOption
+                  onSelect={() => {
+                    ws.emit("mediaSourceRequest")
+                  }}
+                >
                   <Text style={styles.menuBtn}>Refresh</Text>
                 </MenuOption>
               </MenuOptions>
             </Menu>
           ),
-          headerBackVisible: false
+          headerBackVisible: false,
         })}
       />
     </Stack.Navigator>
@@ -76,7 +79,7 @@ const AppStack = () => {
 }
 
 export interface NavigationProps
-  extends Partial<React.ComponentProps<typeof NavigationContainer>> { }
+  extends Partial<React.ComponentProps<typeof NavigationContainer>> {}
 
 export const AppNavigator = (props: NavigationProps) => {
   // const colorScheme = useColorScheme()
@@ -100,6 +103,6 @@ const styles = StyleSheet.create({
     fontFamily: typography.primary.semiBold,
     fontWeight: "500",
     marginLeft: 4,
-    paddingVertical: 6
-  }
+    paddingVertical: 6,
+  },
 })

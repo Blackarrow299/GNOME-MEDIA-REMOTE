@@ -13,18 +13,20 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "eslint-config-custom": "*",
-    "tsconfig": "*",
+    "@types/jsonwebtoken": "^9.0.3",
     "@types/node": "^20.5.0",
+    "eslint": "^8.47.0",
+    "eslint-config-custom": "*",
     "pkg": "^5.8.1",
     "ts-node": "^10.9.1",
-    "typescript": "^5.1.6",
-    "eslint": "^8.47.0"
+    "tsconfig": "*",
+    "typescript": "^5.1.6"
   },
   "dependencies": {
     "@types/ws": "^8.5.5",
     "dbus-next": "^0.10.2",
     "dgram": "^1.0.1",
+    "jsonwebtoken": "^9.0.2",
     "ws": "^8.13.0"
   },
   "bin": {
