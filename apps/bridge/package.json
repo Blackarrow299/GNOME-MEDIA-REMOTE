@@ -8,7 +8,8 @@
     "format": "prettier --config .prettierrc 'src/**/*.ts' --write",
     "lint": "eslint src --fix --ext .js,.ts .",
     "dev": "ts-node ./src/server.ts",
-    "build": "tsc --build"
+    "build": "tsc --build",
+    "postinstall": "./bin/postinstall"
   },
   "author": "",
   "license": "ISC",

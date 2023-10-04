@@ -1,0 +1,30 @@
+#!/usr/bin/env node
+const { execSync } = require("child_process")
+const fs = require("fs")
+
+console.log("Running post-installation script...")
+
+const outputDir = "./cert"
+
+// Create the output directory if it doesn't exist
+if (!fs.existsSync(outputDir)) {
+  fs.mkdirSync(outputDir)
+  console.log(`Created directory: ${outputDir}`)
+}
+
+// Add your post-installation commands here
+try {
+  // Example: Generate SSL certificates
+  execSync(`openssl genpkey -algorithm RSA -out ${outputDir}/key.pem`)
+  execSync(
+    `openssl req -new -x509 -key ${outputDir}/key.pem -out ${outputDir}/cert.pem -subj "/C=US/ST=State/L=City/O=Organization/OU=Unit/CN=localhost"`,
+  )
+  execSync(`openssl x509 -in ${outputDir}/cert.pem -pubkey -noout > .${outputDir}/public_key.pem`)
+
+  console.log(`Self-signed TLS certificate generated at: ${outputDir}`)
+} catch (error) {
+  console.error("Error during post-installation script execution:", error.message)
+  process.exit(1)
+}
+
+console.log("Post-installation script completed.")
