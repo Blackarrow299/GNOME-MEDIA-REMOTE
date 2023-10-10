@@ -22,6 +22,6 @@ export default function listenForDiscoveryMsg(hostname: string) {
   })
 
   udpServer.bind(60537, "0.0.0.0", () => {
-    console.log("UDP Server is listening on port 60537")
+    console.log("# Discovery Server Started")
   })
 }

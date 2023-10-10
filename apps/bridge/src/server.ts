@@ -35,7 +35,12 @@ type WsEvents = Record<string, (ws: CustomWs, payload?: unknown) => void>
   }
 
   const { player, onUpdate, onChange } = await getCurrentMediaApp(busSession)
-  console.log("Media Player Handler loaded")
+
+  // TODO: looks ugly
+  let currentMediaPlayer = player
+  onChange((newPlayer) => currentMediaPlayer = newPlayer)
+
+  console.log("# Media Player Handler loaded")
 
   listenForDiscoveryMsg(hostname)
 
@@ -299,43 +304,44 @@ type WsEvents = Record<string, (ws: CustomWs, payload?: unknown) => void>
   }
 
   async function handleMediaRequestEvent(ws: CustomWs) {
-    const data = await player?.getAllProps()
-    if (ws.authorized) ws.send(createWsEvent("mediaSourceChanged", data))
+    if(!ws.authorized) return
+    const data = await currentMediaPlayer?.getAllProps()
+    ws.send(createWsEvent("mediaSourceChanged", data))
   }
 
   function handleUpdateMediaEvent(ws: CustomWs, payload: unknown) {
     if (ws.authorized && payload && typeof payload === "object") {
-      player?.updateFields(payload as Partial<AllPropsInType>)
+      currentMediaPlayer?.updateFields(payload as Partial<AllPropsInType>)
     }
   }
 
   function handleNextMediaEvent(ws: CustomWs) {
     if (ws.authorized) {
-      player?.next()
+      currentMediaPlayer?.next()
     }
   }
 
   function handlePrevMediaEvent(ws: CustomWs) {
     if (ws.authorized) {
-      player?.prev()
+      currentMediaPlayer?.prev()
     }
   }
 
   function handlePlayMediaEvent(ws: CustomWs) {
     if (ws.authorized) {
-      player?.play()
+      currentMediaPlayer?.play()
     }
   }
 
   function handlePauseMediaEvent(ws: CustomWs) {
     if (ws.authorized) {
-      player?.pause()
+      currentMediaPlayer?.pause()
     }
   }
 
   async function handleMediaPositionRequest(ws: CustomWs) {
     if (ws.authorized) {
-      ws.send(createWsEvent("mediaPositionResponse", await player?.position))
+      ws.send(createWsEvent("mediaPositionResponse", await currentMediaPlayer?.position))
     }
   }
 
@@ -347,7 +353,7 @@ type WsEvents = Record<string, (ws: CustomWs, payload?: unknown) => void>
       "position" in payload &&
       "id" in payload
     ) {
-      player?.setPostition(payload as { id: string; position: string })
+      currentMediaPlayer?.setPostition(payload as { id: string; position: string })
     }
   }
 

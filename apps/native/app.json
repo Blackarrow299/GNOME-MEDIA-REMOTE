@@ -1,5 +1,5 @@
 {
-  "name": "GnomeMediaRemote",
+  "name": "MyApp",
   "displayName": "Gnome Media Remote",
   "expo": {
     "name": "Gnome Media Remote",
@@ -11,7 +11,7 @@
     "splash": {
       "image": "./assets/images/splash-logo-all.png",
       "resizeMode": "contain",
-      "backgroundColor": "#000000"
+      "backgroundColor": "#ffffff"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -35,6 +35,20 @@
     },
     "plugins": [
       "expo-localization"
-    ]
+    ],
+    "ios": {
+      "splash": {
+        "backgroundColor": "#ffffff",
+        "image": "./assets/images/splash-logo-ios-mobile.png",
+        "resizeMode": "contain"
+      }
+    },
+    "web": {
+      "splash": {
+        "backgroundColor": "#ffffff",
+        "image": "./assets/images/splash-logo-web.png",
+        "resizeMode": "contain"
+      }
+    }
   }
 }
