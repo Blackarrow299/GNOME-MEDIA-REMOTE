@@ -7,13 +7,13 @@ This project is a monorepo that combines a Node.js server with a React Native mo
 1. Clone this repository:
 
   ```bash
-  git clone https://github.com/Blackarrow299/media_sync.git
+  git clone https://github.com/Blackarrow299/GNOME-MEDIA-REMOTE.git
 ```
 
 2. Navigate to the project directory:
 
   ```bash
-  cd media_sync
+  cd GNOME-MEDIA-REMOTE
 ```
 3. Install dependencies
 ```bash
